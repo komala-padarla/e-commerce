@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunny - AI Voice Assistant Web Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .status.offline {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+        .status.online {
+            background: #55efc4;
+            color: #00b894;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        .output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .command-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        .command-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 5px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Sunny AI Assistant</h1>
+        <p class="subtitle">Your Personal Voice-Controlled AI Companion</p>
+        
+        <div class="status offline" id="status">
+            🔴 Offline - Run Python Backend to Connect
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-success" onclick="startPythonBackend()">🚀 Start Backend</button>
+            <button class="btn btn-primary" onclick="connectToPython()">🔗 Connect</button>
+            <button class="btn btn-danger" onclick="stopPythonBackend()">⏹️ Stop</button>
+        </div>
+        
+        <input type="text" class="command-input" id="commandInput" placeholder="Type command or click 'Start Backend' to use voice..." onkeypress="handleKeyPress(event)">
+        
+       
+
+        
+    </div>
+
+    <script>
+        let pythonConnected = false;
+        let ws = null;
+
+        function startPythonBackend() {
+            updateOutput("🚀 Starting Python backend...");
+            updateOutput("📋 Please run: python sunny_minimal.py in your terminal");
+            updateOutput("🔗 Then click 'Connect' to link this web interface");
+            updateStatus("🟡 Starting...", "offline");
+        }
+
+        function connectToPython() {
+            updateOutput("🔗 Attempting to connect to Python backend...");
+            updateStatus("🟡 Connecting...", "offline");
+            
+            // This would typically connect to a WebSocket or HTTP server
+            // For now, we'll simulate the connection
+            setTimeout(() => {
+                updateOutput("✅ Connected to Python backend!");
+                updateStatus("🟢 Connected - Ready for voice commands", "online");
+                pythonConnected = true;
+                
+                // Enable voice input simulation
+                document.getElementById('commandInput').placeholder = "Type commands or speak naturally...";
+            }, 2000);
+        }
+
+        function stopPythonBackend() {
+            updateOutput("⏹️ Stopping Python backend...");
+            updateStatus("🔴 Offline", "offline");
+            pythonConnected = false;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                const command = document.getElementById('commandInput').value;
+                if (command.trim()) {
+                    processCommand(command);
+                    document.getElementById('commandInput').value = '';
+                }
+            }
+        }
+
+        function processCommand(command) {
+            if (!pythonConnected) {
+                updateOutput("❌ Please start the Python backend first!");
+                return;
+            }
+            
+            updateOutput(`🎤 Processing: "${command}"`);
+            
+            // Simulate command processing
+            setTimeout(() => {
+                let response = "";
+                
+                const cmd = command.toLowerCase();
+                if (cmd.includes("play")) {
+                    response = `🎵 Playing "${cmd.replace('play', '').trim()}" on YouTube`;
+                } else if (cmd.includes("open")) {
+                    response = `🌐 Opening ${cmd.replace('open', '').trim()}`;
+                } else if (cmd.includes("weather")) {
+                    response = `🌤️ Checking weather for ${cmd.replace('weather', '').trim()}`;
+                } else if (cmd.includes("time")) {
+                    response = `⏰ Current time: ${new Date().toLocaleTimeString()}`;
+                } else if (cmd.includes("date")) {
+                    response = `📅 Today is: ${new Date().toLocaleDateString()}`;
+                } else {
+                    response = "🤔 Command not recognized. Try: play, open, weather, time, or date";
+                }
+                
+                updateOutput(response);
+            }, 1000);
+        }
+
+        function updateOutput(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += `<br>${message}`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function updateStatus(message, className) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${className}`;
+        }
+
+        // Auto-connect on page load
+        window.addEventListener('load', () => {
+            updateOutput("🎯 Web interface loaded. Ready to connect to Python backend!");
+        });
+    </script>
+</body>
+</html>
